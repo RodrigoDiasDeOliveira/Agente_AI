@@ -1,12 +1,14 @@
-import os
 from dotenv import load_dotenv
+import os
 
+# Carregar variáveis de ambiente
 load_dotenv()
 
-class Settings:
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
-    MODEL_NAME = os.getenv("MODEL_NAME", "gpt-3.5-turbo")
-    EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "text-embedding-ada-002")
-    DOCS_PATH = os.getenv("DOCS_PATH", "./data/docs")
+# Configurações
+HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
+VECTORSTORE_PATH = "data/vectorstore"
+DOCS_PATH = "data/docs/Relatório Sintético 2023 - Programa de Compliance_site.pdf"
 
-settings = Settings()
+# Verificar se a chave API está definida
+if not HUGGINGFACEHUB_API_TOKEN:
+    print("Aviso: HUGGINGFACEHUB_API_TOKEN não definido. Usando modelo público.")

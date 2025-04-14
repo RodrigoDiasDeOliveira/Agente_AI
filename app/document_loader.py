@@ -1,38 +1,16 @@
-# app/document_loader.py
-
-from langchain.document_loaders import TextLoader, PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import FAISS
-
-from pathlib import Path
+from langchain_community.vectorstores import FAISS
+from langchain_community.document_loaders import PDFPlumberLoader
+from langchain_huggingface import HuggingFaceEmbeddings
+from app.config import DOCS_PATH, VECTORSTORE_PATH
 import os
 
-def load_documents(directory: str = "data/docs"):
-    docs = []
-    for file_path in Path(directory).glob("*"):
-        if file_path.suffix == ".txt":
-            loader = TextLoader(str(file_path))
-            docs.extend(loader.load())
-        elif file_path.suffix == ".pdf":
-            loader = PyPDFLoader(str(file_path))
-            docs.extend(loader.load())
-        # Outros formatos podem ser adicionados aqui futuramente
-    return docs
-
-def split_documents(documents):
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200
-    )
-    return splitter.split_documents(documents)
-
-def create_vectorstore(documents, persist_directory: str = "data/vectorstore"):
-    embeddings = OpenAIEmbeddings()  # Certifique-se de ter sua chave de API
+def load_and_vectorize():
+    if not os.path.exists(DOCS_PATH):
+        raise FileNotFoundError(f"O arquivo {DOCS_PATH} não foi encontrado.")
+    os.makedirs(VECTORSTORE_PATH, exist_ok=True)
+    loader = PDFPlumberLoader(DOCS_PATH)
+    documents = loader.load()
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
     vectordb = FAISS.from_documents(documents, embeddings)
-    vectordb.save_local(persist_directory)
-    return vectordb
-
-def load_vectorstore(persist_directory: str = "data/vectorstore"):
-    embeddings = OpenAIEmbeddings()
-    return FAISS.load_local(persist_directory, embeddings)
+    vectordb.save_local(VECTORSTORE_PATH)
+    print(f"Índice salvo em {VECTORSTORE_PATH}/index.faiss")

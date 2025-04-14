@@ -1,58 +1,55 @@
-from langchain.chains import RetrievalQA
-from langchain_community.chat_models import ChatOpenAI
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OpenAIEmbeddings
-from langchain_community.document_loaders import TextLoader
-from langchain.prompts import PromptTemplate
-from langchain.schema import BaseRetriever
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
+from langchain.chains import RetrievalQA
+from app.config import HUGGINGFACEHUB_API_TOKEN, VECTORSTORE_PATH
+import os
 
-from app.config import settings
+# Configurar a chave API
+if not HUGGINGFACEHUB_API_TOKEN:
+    raise ValueError("HUGGINGFACEHUB_API_TOKEN não definido no config.py")
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
 
-# Inicializar modelo de embeddings
-embeddings = OpenAIEmbeddings(openai_api_key=settings.OPENAI_API_KEY)
+# Carregar embeddings
+try:
+    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+except Exception as e:
+    raise Exception(f"Erro ao configurar embeddings: {e}")
 
-# Caminho do vectorstore
-VECTORSTORE_PATH = settings.DOCS_PATH + "/../vectorstore"
+# Carregar vectorstore
+try:
+    vectordb = FAISS.load_local(VECTORSTORE_PATH, embeddings, allow_dangerous_deserialization=True)
+except Exception as e:
+    raise Exception(f"Erro ao carregar vectorstore: {e}")
 
+# Configurar o LLM
+try:
+    llm = HuggingFaceEndpoint(
+        repo_id="google/flan-t5-base",
+        task="text2text-generation",
+        max_length=512,
+        temperature=0.7,
+        huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN
+    )
+except Exception as e:
+    raise Exception(f"Erro ao configurar LLM: {e}")
 
+# Configurar o RetrievalQA
+try:
+    qa_chain = RetrievalQA.from_chain_type(
+        llm=llm,
+        chain_type="stuff",
+        retriever=vectordb.as_retriever(search_kwargs={"k": 3}),
+        return_source_documents=True
+    )
+except Exception as e:
+    raise Exception(f"Erro ao configurar RetrievalQA: {e}")
 
-# Carregar o FAISS vectorstore
-vectordb = FAISS.load_local(VECTORSTORE_PATH, embeddings, allow_dangerous_deserialization=True)
-
-# Criar o retriever (quem faz a busca nos documentos)
-retriever: BaseRetriever = vectordb.as_retriever(search_type="similarity", search_kwargs={"k": 3})
-
-# Modelo de linguagem
-llm = ChatOpenAI(temperature=0, openai_api_key=settings.OPENAI_API_KEY, model_name=settings.MODEL_NAME)
-
-# (Opcional) Custom prompt
-prompt_template = PromptTemplate(
-    input_variables=["context", "question"],
-    template="""
-Você é um assistente de IA treinado com base nos documentos da empresa.
-Com base no conteúdo abaixo, responda à pergunta de forma clara e objetiva.
-
-Contexto:
-{context}
-
-Pergunta:
-{question}
-
-Resposta:"""
-)
-
-# Criar a cadeia QA com recuperação + LLM
-qa_chain = RetrievalQA.from_chain_type(
-    llm=llm,
-    retriever=retriever,
-    chain_type="stuff",
-    return_source_documents=True
-)
-
-def ask_agent(question: str) -> str:
-    """
-    Recebe uma pergunta e retorna a resposta gerada pela IA com base nos documentos.
-    """
-    result = qa_chain({"query": question})
-    answer = result["result"]
-    return answer
+# Função para responder perguntas
+def ask_agent(question):
+    try:
+        result = qa_chain.invoke({"query": question})
+        answer = result["result"]
+        sources = [doc.page_content[:100] for doc in result["source_documents"]]
+        return {"answer": answer, "sources": sources}
+    except Exception as e:
+        return {"answer": f"Erro ao processar a pergunta: {str(e)}", "sources": []}
