@@ -1,5 +1,5 @@
 from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import PDFPlumberLoader
+from langchain_community.document_loaders import UnstructuredPDFLoader  # Alterado de PDFPlumberLoader
 from langchain_huggingface import HuggingFaceEmbeddings
 from app.config import DOCS_PATH, VECTORSTORE_PATH
 import os
@@ -14,7 +14,7 @@ if not os.path.exists(VECTORSTORE_PATH):
 
 # Carregar documentos
 try:
-    loader = PDFPlumberLoader(DOCS_PATH)
+    loader = UnstructuredPDFLoader(DOCS_PATH, mode="elements", strategy="hi_res")  # Alterado para UnstructuredPDFLoader
     documents = loader.load()
     if not documents:
         raise ValueError("Nenhum documento foi carregado.")

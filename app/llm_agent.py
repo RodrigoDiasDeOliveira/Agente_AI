@@ -1,10 +1,11 @@
 from langchain_community.vectorstores import FAISS
-from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFacePipeline  # Alterado de HuggingFaceEndpoint
 from langchain.chains import RetrievalQA
 from app.config import HUGGINGFACEHUB_API_TOKEN, VECTORSTORE_PATH
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 import os
 
-# Configurar a chave API
+# Configurar a chave API (não será usada para o pipeline local, mas mantida para compatibilidade)
 if not HUGGINGFACEHUB_API_TOKEN:
     raise ValueError("HUGGINGFACEHUB_API_TOKEN não definido no config.py")
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
@@ -21,15 +22,20 @@ try:
 except Exception as e:
     raise Exception(f"Erro ao carregar vectorstore: {e}")
 
-# Configurar o LLM
+# Configurar o LLM localmente
 try:
-    llm = HuggingFaceEndpoint(
-        repo_id="google/flan-t5-base",
-        task="text2text-generation",
+    model_id = "distilgpt2"  # Modelo menor para rodar localmente
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    model = AutoModelForCausalLM.from_pretrained(model_id)
+    pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
         max_length=512,
         temperature=0.7,
-        huggingfacehub_api_token=HUGGINGFACEHUB_API_TOKEN
+        device=-1  # Use -1 para CPU; se tiver GPU, use 0
     )
+    llm = HuggingFacePipeline(pipeline=pipe)
 except Exception as e:
     raise Exception(f"Erro ao configurar LLM: {e}")
 
