@@ -35,7 +35,7 @@ def setup_agent():
             "text-generation",
             model=model,
             tokenizer=tokenizer,
-            max_new_tokens=32,
+            max_new_tokens=100,  # Aumentado de 32 para 100
             temperature=0.7,
             top_k=30,
             truncation=True,

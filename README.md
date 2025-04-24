@@ -25,6 +25,18 @@ Foco em entrega de valor, excelência técnica e aprendizado contínuo.
 ## Descrição
 Este é um agente de perguntas e respostas que responde perguntas sobre compliance com base em 7 PDFs, usando LangChain e o modelo `distilgpt2` localmente.
 
+## Funcionalidades
+
+Interface web estilizada com Gradio para fazer perguntas sobre documentos de compliance.
+
+Indexação de PDFs usando FAISS e embeddings da Hugging Face.
+
+Geração de respostas com o modelo distilgpt2.
+
+Salvamento de interações em interactions.csv com análise via Pandas.
+
+Testes automatizados com Pytest.
+
 ## Tecnologias Usadas
 - Python
 - LangChain (`RetrievalQA`, `FAISS`, `PyPDFLoader`)
@@ -81,6 +93,38 @@ As interações são salvas em interactions.csv. Para analisar:
 from app.data_handler import analyze_interactions
 print(analyze_interactions())
 
+## Estrutura do Projeto
+
+Agente_AI/
+├── app/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── data_handler.py
+│   ├── llm_agent.py
+│   ├── main.py
+├── data/
+│   ├── docs/
+│   │   ├── (múltiplos PDFs)
+│   ├── vectorstore/
+│   │   ├── index.faiss
+│   │   └── index.pkl
+├── tests/
+│   ├── __init__.py
+│   ├── test_api.py
+├── .env
+├── gerar_indice_faiss.py
+├── interactions.csv
+├── pytest.ini
+├── requirements.txt
+├── run.py
+├── test_api_client.py
+└── README.md
+
+## Pré-requisitos
+
+Python 3.8 ou superior
+
+Dependências listadas em requirements.txt
 
 
 ## Avaliação Geral
