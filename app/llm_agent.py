@@ -11,66 +11,69 @@ if not HUGGINGFACEHUB_API_TOKEN:
     raise ValueError("HUGGINGFACEHUB_API_TOKEN não definido no config.py")
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = HUGGINGFACEHUB_API_TOKEN
 
-print("Carregando embeddings...")
-try:
-    embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    print("Embeddings carregados com sucesso.")
-except Exception as e:
-    raise Exception(f"Erro ao configurar embeddings: {e}")
+def setup_agent():
+    print("Carregando embeddings...")
+    try:
+        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        print("Embeddings carregados com sucesso.")
+    except Exception as e:
+        raise Exception(f"Erro ao configurar embeddings: {e}")
 
-print("Carregando vectorstore...")
-try:
-    vectordb = FAISS.load_local(VECTORSTORE_PATH, embeddings, allow_dangerous_deserialization=True)
-    print("Vectorstore carregado com sucesso.")
-except Exception as e:
-    raise Exception(f"Erro ao carregar vectorstore: {e}")
+    print("Carregando vectorstore...")
+    try:
+        vectordb = FAISS.load_local(VECTORSTORE_PATH, embeddings, allow_dangerous_deserialization=True)
+        print("Vectorstore carregado com sucesso.")
+    except Exception as e:
+        raise Exception(f"Erro ao carregar vectorstore: {e}")
 
-print("Configurando o LLM localmente...")
-try:
-    model_id = "distilgpt2"
-    tokenizer = AutoTokenizer.from_pretrained(model_id)
-    model = AutoModelForCausalLM.from_pretrained(model_id)
-    pipe = pipeline(
-        "text-generation",
-        model=model,
-        tokenizer=tokenizer,
-        max_new_tokens=32,  # Aumentado de 16 para 32
-        temperature=0.7,
-        top_k=30,
-        truncation=True,
-        device=-1
+    print("Configurando o LLM localmente...")
+    try:
+        model_id = "distilgpt2"
+        tokenizer = AutoTokenizer.from_pretrained(model_id)
+        model = AutoModelForCausalLM.from_pretrained(model_id)
+        pipe = pipeline(
+            "text-generation",
+            model=model,
+            tokenizer=tokenizer,
+            max_new_tokens=32,
+            temperature=0.7,
+            top_k=30,
+            truncation=True,
+            device=-1
+        )
+        llm = HuggingFacePipeline(pipeline=pipe)
+        print("LLM configurado com sucesso.")
+    except Exception as e:
+        raise Exception(f"Erro ao configurar LLM: {e}")
+
+    # Criar um PromptTemplate personalizado
+    prompt_template = """Com base no contexto abaixo, responda à pergunta de forma clara e concisa:
+
+    {context}
+
+    Pergunta: {question}
+    """
+    prompt = PromptTemplate(
+        template=prompt_template,
+        input_variables=["context", "question"]
     )
-    llm = HuggingFacePipeline(pipeline=pipe)
-    print("LLM configurado com sucesso.")
-except Exception as e:
-    raise Exception(f"Erro ao configurar LLM: {e}")
 
-# Criar um PromptTemplate personalizado
-prompt_template = """Com base no contexto abaixo, responda à pergunta de forma clara e concisa:
+    print("Configurando RetrievalQA...")
+    try:
+        qa_chain = RetrievalQA.from_chain_type(
+            llm=llm,
+            chain_type="stuff",
+            retriever=vectordb.as_retriever(),
+            return_source_documents=True,
+            chain_type_kwargs={"prompt": prompt}
+        )
+        print("RetrievalQA configurado com sucesso.")
+    except Exception as e:
+        raise Exception(f"Erro ao configurar RetrievalQA: {e}")
 
-{context}
+    return qa_chain
 
-Pergunta: {question}
-"""
-prompt = PromptTemplate(
-    template=prompt_template,
-    input_variables=["context", "question"]
-)
-
-print("Configurando RetrievalQA...")
-try:
-    qa_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=vectordb.as_retriever(),
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": prompt}
-    )
-    print("RetrievalQA configurado com sucesso.")
-except Exception as e:
-    raise Exception(f"Erro ao configurar RetrievalQA: {e}")
-
-def ask_agent(question, num_chunks=3):
+def ask_agent(question, qa_chain, num_chunks=3):
     print(f"Recebendo pergunta: {question}")
     print(f"Recuperando {num_chunks} trechos do index.faiss...")
     try:

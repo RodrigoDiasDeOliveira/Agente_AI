@@ -2,7 +2,7 @@
 Prova de Conceito com LLMs, Python, GradioAPI e LangChain
 
    os requisitos são:
-   Sua missão será explorar e aplicar tecnologias de inteligência artificial, especialmente modelos de linguagem (LLMs), para criar soluções inovadoras que agreguem valor real aos nossos produtos e processos. Você será responsável por projetar, desenvolver e integrar agentes inteligentes utilizando Python, LangChain e outras ferramentas do ecossistema de IA, colaborando com outras áreas para transformar desafios complexos em soluções funcionais. Também poderá atuar com técnicas de machine learning, sempre com foco em entrega de valor, excelência técnica e aprendizado contínuo. deverá  utilizar das seguintes tecnologias: Python, FastAPI, Streamlit/Gradio e Bibliotecas de LLMs de terceiro (Openai/Gemini)/Langchain.
+   Sua missão será explorar e aplicar tecnologias de inteligência artificial, especialmente modelos de linguagem (LLMs), para criar soluções inovadoras que agreguem valor real aos nossos produtos e processos. Você será responsável por projetar, desenvolver e integrar agentes inteligentes utilizando Python, LangChain e outras ferramentas do ecossistema de IA, colaborando com outras áreas para transformar desafios complexos em soluções funcionais. Também poderá atuar com técnicas de machine learning, sempre com foco em entrega de valor, excelência técnica e aprendizado contínuo. deverá  utilizar das seguintes tecnologias: Python, API, Streamlit/Gradio e Bibliotecas de LLMs de terceiro (Openai/Gemini)/Langchain.
 
                                          Análise do Requisito
       Missão e Responsabilidades

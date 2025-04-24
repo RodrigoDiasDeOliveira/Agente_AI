@@ -1,23 +1,20 @@
 import gradio as gr
-from langchain_xai import ChatGrok
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from app.llm_agent import setup_agent, ask_agent
 from app.data_handler import save_interaction
 
-# Configuração do Grok e LangChain
-grok = ChatGrok(api_key="sua-api-key-aqui")  # Substitua pela sua API key
-prompt = PromptTemplate.from_template("Responda: {question}")
-chain = LLMChain(llm=grok, prompt=prompt)
+# Configura o agente
+qa_chain = setup_agent()
 
 # Função que processa a entrada do usuário
 async def ask_question(question: str):
     if not question.strip():
         return "Erro: A pergunta não pode estar vazia."
-    response = await chain.invoke({"question": question})
-    answer = response["content"]
+    result = ask_agent(question, qa_chain)
+    answer = result["answer"]
+    sources = result["sources"]
     # Salva a interação
     save_interaction(question, answer)
-    return answer
+    return f"**Resposta**: {answer}\n\n**Fontes**: {sources}"
 
 # Configura a interface Gradio
 iface = gr.Interface(
@@ -25,7 +22,7 @@ iface = gr.Interface(
     inputs=gr.Textbox(label="Digite sua pergunta"),
     outputs=gr.Textbox(label="Resposta"),
     title="Agente AI",
-    description="Um agente conversacional para resolver problemas complexos."
+    description="Um agente conversacional com RAG para resolver problemas complexos."
 )
 
 # Inicia o Gradio
