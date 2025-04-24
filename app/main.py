@@ -1,23 +1,33 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from app.llm_agent import ask_question
-from fastapi.middleware.cors import CORSMiddleware
+import gradio as gr
+from langchain_xai import ChatGrok
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from app.data_handler import save_interaction
 
-app = FastAPI()
+# Configuração do Grok e LangChain
+grok = ChatGrok(api_key="sua-api-key-aqui")  # Substitua pela sua API key
+prompt = PromptTemplate.from_template("Responda: {question}")
+chain = LLMChain(llm=grok, prompt=prompt)
 
-# Permitir chamadas do Gradio
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+# Função que processa a entrada do usuário
+async def ask_question(question: str):
+    if not question.strip():
+        return "Erro: A pergunta não pode estar vazia."
+    response = await chain.invoke({"question": question})
+    answer = response["content"]
+    # Salva a interação
+    save_interaction(question, answer)
+    return answer
+
+# Configura a interface Gradio
+iface = gr.Interface(
+    fn=ask_question,
+    inputs=gr.Textbox(label="Digite sua pergunta"),
+    outputs=gr.Textbox(label="Resposta"),
+    title="Agente AI",
+    description="Um agente conversacional para resolver problemas complexos."
 )
 
-class Query(BaseModel):
-    question: str
-
-@app.post("/ask")
-def ask(query: Query):
-    answer = ask_question(query.question)
-    return {"answer": answer}
+# Inicia o Gradio
+if __name__ == "__main__":
+    iface.launch(share=False, server_name="0.0.0.0", server_port=7860)
