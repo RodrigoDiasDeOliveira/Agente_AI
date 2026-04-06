@@ -23,7 +23,7 @@ Foco em entrega de valor, excelência técnica e aprendizado contínuo.
 # Proposta: Agente de Compliance - Versão 1
 
 ## Descrição
-Este é um agente de perguntas e respostas que responde perguntas sobre compliance com base em 7 PDFs, usando LangChain e o modelo `distilgpt2` localmente.
+Este é um agente de perguntas e respostas que responde perguntas sobre compliance com base em PDFs, usando LangChain e o modelo `distilgpt2` localmente.
 
 ## Funcionalidades
 
