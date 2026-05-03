@@ -1,0 +1,79 @@
+Documento de Arquitectura
+Agente_AI - Trusted Compliance Agent v2.0
+Fecha: 03 de Mayo de 2026
+Versión: 2.0
+1. Introducción
+Este documento describe la arquitectura de la evolución del proyecto Agente_AI, inspirada en el concepto Oracle Trusted Answer Search, adaptada para PostgreSQL y entornos open-source.
+El objetivo principal es aumentar drásticamente la precisión, determinismo y confiabilidad de las respuestas en el dominio de Compliance, reduciendo el riesgo de alucinaciones.
+2. Objetivos de la Arquitectura
+
+Priorizar respuestas deterministas siempre que sea posible
+Implementar un enfoque híbrido (Trusted Search → Fallback RAG)
+Crear un bucle de retroalimentación humano continuo
+Proporcionar una excelente experiencia de administración
+Mantener compatibilidad con el código anterior
+
+3. Visión General de la Arquitectura
+Flujo Híbrido:
+Consulta del usuario → Búsqueda Confiable (Vector + Reranking) → Si la confianza es alta → Retornar Match Document curado. En caso contrario → Fallback a RAG + LLM.
+4. Componentes Principales
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CapaComponenteTecnologíaResponsabilidadInterfazMain + AdminGradioUI/UXOrquestaciónTrustedAnswerSearchPython + SQLAlchemyLógica PrincipalRecuperaciónVector SearchPostgreSQL + pgvectorBúsqueda InicialRerankingCrossEncodersentence-transformersRefinamientoConocimientoSearch TargetsTabla search_targetsConocimiento CuradoFeedbackFeedbackHandlerTabla feedbackAprendizaje HumanoFallbackLLM AgentLangChainRespuestas Generadas
+5. Mejoras Clave
+
+Cambio de mentalidad: de generativo a recuperación + reranking
+Mayor gobernanza mediante targets curados
+Sistema de feedback profesional
+Mejor rendimiento y escalabilidad

@@ -19,7 +19,28 @@ The main goal is to deliver **accurate, secure, and deterministic** answers for 
 
 ## 3. High-Level Architecture
 
-
+flowchart TD
+    A[Usuário Faz Pergunta] --> B{Usar Trusted Search?}
+    
+    B -->|Sim| C[Embedding da Pergunta]
+    C --> D[Vector Search no PostgreSQL]
+    D --> E[Recupera Candidatos]
+    E --> F[Reranking com CrossEncoder]
+    F --> G{Score >= Threshold?}
+    
+    G -->|Sim| H[Retorna Match Document Curado]
+    G -->|Não| I[Fallback RAG + LLM]
+    
+    B -->|Não| I
+    
+    H --> J[Exibe Resposta + Botões de Feedback]
+    I --> J
+    
+    J --> K[Feedback Handler registra avaliação]
+    K --> L[Melhoria Contínua do Sistema]
+    
+    style H fill:#10b981,stroke:#166534
+    style I fill:#eab308,stroke:#854d0e
 
 ## 4. Components
 Layer,Component,Technology,Responsibility

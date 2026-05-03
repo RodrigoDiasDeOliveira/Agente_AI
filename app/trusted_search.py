@@ -54,7 +54,7 @@ class TrustedAnswerSearch:
                 description=target.description,
                 alternative_phrases=target.alternative_phrases,
                 match_document=target.match_document.dict(),
-                embedding=json.dumps(embedding)
+                embedding=list(embedding)
             )
             session.add(db_target)
             session.commit()
@@ -133,6 +133,15 @@ class TrustedAnswerSearch:
             return self._fallback_rag(query)
         finally:
             session.close()
+
+    def _cosine_similarity(self, a: np.ndarray, b: np.ndarray) -> float:
+        if a is None or b is None or a.size == 0 or b.size == 0:
+            return 0.0
+        a_norm = np.linalg.norm(a)
+        b_norm = np.linalg.norm(b)
+        if a_norm == 0 or b_norm == 0:
+            return 0.0
+        return float(np.dot(a, b) / (a_norm * b_norm))
 
     def _rerank_candidates(self, query: str, candidates: list):
         """Reranking com CrossEncoder"""

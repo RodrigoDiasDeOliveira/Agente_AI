@@ -96,3 +96,5 @@ BashAgente_AI/
 │   └── init_db.py
 ├── .env
 └── README.md
+
+📄 [Ver Documento de Arquitetura](./docs/ARCHITECTURE.md)

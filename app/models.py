@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text, JSON, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
+from pgvector.sqlalchemy import Vector
 from datetime import datetime
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -14,7 +15,7 @@ class SearchTarget(Base):
     description = Column(Text, nullable=False)
     alternative_phrases = Column(JSON)           # lista de strings
     match_document = Column(JSON, nullable=False)
-    embedding = Column(Text)                     # vetor como string JSON
+    embedding = Column(Vector(384))              # vetor pgvector
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
