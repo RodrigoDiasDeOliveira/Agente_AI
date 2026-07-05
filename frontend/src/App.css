@@ -1,0 +1,150 @@
+:root {
+  color: #e5eefc;
+  background: linear-gradient(135deg, #07111f 0%, #12253f 100%);
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  padding: 32px;
+  display: grid;
+  gap: 24px;
+  background: radial-gradient(circle at top left, rgba(76, 201, 240, 0.18), transparent 28%);
+}
+
+.hero-card,
+.result-card {
+  background: rgba(4, 16, 30, 0.78);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25);
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+  align-items: center;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.8rem;
+  color: #4cc9f0;
+  margin-bottom: 12px;
+}
+
+h1,
+h2 {
+  margin: 0 0 12px;
+  color: #f8fbff;
+}
+
+.subtitle {
+  color: #9fb0c9;
+  line-height: 1.6;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #dbe7f7;
+}
+
+textarea {
+  min-height: 140px;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  resize: vertical;
+}
+
+textarea::placeholder {
+  color: #87a0ba;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, #4361ee, #4cc9f0);
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.examples button {
+  background: rgba(255,255,255,0.1);
+  color: #dfe9f7;
+}
+
+.answer-box {
+  min-height: 110px;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  line-height: 1.6;
+  color: #f4f8ff;
+  white-space: pre-wrap;
+}
+
+.feedback-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.status {
+  margin-top: 12px;
+  color: #7dd3fc;
+}
+
+@media (max-width: 900px) {
+  .hero-card {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    padding: 16px;
+  }
+}

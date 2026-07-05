@@ -1,38 +1,52 @@
 # app/trusted_search.py
 import json
 from datetime import datetime
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
-from langchain_huggingface import HuggingFaceEmbeddings
-from sentence_transformers import CrossEncoder
-import numpy as np
 from functools import lru_cache
+
+import numpy as np
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import sessionmaker
+
 from .config import DATABASE_URL
-from .models import SearchTarget
-from .llm_agent import get_llm_response
 from .feedback_handler import FeedbackHandler
+from .llm_agent import get_llm_response
+from .models import SearchTarget
+
+try:
+    from langchain_huggingface import HuggingFaceEmbeddings
+except Exception:  # pragma: no cover - fallback for environments without optional dependency
+    HuggingFaceEmbeddings = None
+
+try:
+    from sentence_transformers import CrossEncoder
+except Exception:  # pragma: no cover - fallback for environments without optional dependency
+    CrossEncoder = None
+
 
 class TrustedAnswerSearch:
     def __init__(self):
         self.engine = create_engine(DATABASE_URL)
         self.Session = sessionmaker(bind=self.engine)
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
-        )
-        
-        # Reranker (CrossEncoder) - muito mais preciso
-        self.reranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')
-        
         self.feedback_handler = FeedbackHandler()
-        
-        # Cache simples
         self._embedding_cache = {}
-        
-        # Criar tabelas
-        from .models import Base
-        Base.metadata.create_all(self.engine)
-        
-        print("✅ TrustedAnswerSearch inicializado com Reranking")
+        self.embeddings = None
+        self.reranker = None
+
+        try:
+            if HuggingFaceEmbeddings is not None:
+                self.embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+            if CrossEncoder is not None:
+                self.reranker = CrossEncoder("cross-encoder/ms-marco-MiniLM-L-6-v2")
+
+            from .models import Base
+
+            Base.metadata.create_all(self.engine)
+            print("✅ TrustedAnswerSearch inicializado com Reranking")
+        except SQLAlchemyError as exc:
+            print(f"⚠️ Banco indisponível, continuando em modo fallback: {exc}")
+        except Exception as exc:
+            print(f"⚠️ Falha na inicialização do TrustedSearch: {exc}")
 
     @lru_cache(maxsize=500)
     def _get_embedding(self, text: str):

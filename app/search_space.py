@@ -1,7 +1,7 @@
 # app/search_space.py
 import json
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from .models import SearchTargetCreate, MatchDocument
 from .trusted_search import TrustedAnswerSearch
 import uuid
