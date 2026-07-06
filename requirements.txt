@@ -12,7 +12,6 @@ langchain-text-splitters>=0.3.0
 # ================== Embeddings & Vectors ==================
 sentence-transformers>=3.0.0
 huggingface-hub>=0.25.0
-faiss-cpu>=1.8.0.post1          # fallback vector store
 
 # ================== Banco de Dados ==================
 sqlalchemy>=2.0.0

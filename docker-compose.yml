@@ -1,0 +1,37 @@
+version: "3.9"
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: appdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    command: python run.py
+    environment:
+      DATABASE_URL: postgresql+psycopg2://postgres:postgres@db:5432/appdb
+      DOCS_PATH: ./data/docs
+      CORS_ORIGINS: http://localhost:5173
+      ADMIN_API_TOKEN: changeme
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: node:20
+    working_dir: /app/frontend
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    volumes:
+      - .:/app
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:

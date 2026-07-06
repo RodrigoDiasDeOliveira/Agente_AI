@@ -1,26 +1,25 @@
 from dotenv import load_dotenv
 import os
 
-# Carregar variáveis de ambiente
 load_dotenv()
 
-# Configurações de banco de dados
 DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql+psycopg2://postgres:postgres@localhost:5432/appdb"
+    "postgresql+psycopg2://postgres:postgres@localhost:5432/appdb",
 )
-
-# Configurações
 HUGGINGFACEHUB_API_TOKEN = os.getenv("HUGGINGFACEHUB_API_TOKEN", "")
-VECTORSTORE_PATH = "data/vectorstore"
-DOCS_PATH = "data/docs/Relatório Sintético 2023 - Programa de Compliance_site.pdf",
-"/workspaces/Agente_AI/data/docs/Codigo-de-Conduta-Etica.pdf",
-"/workspaces/Agente_AI/data/docs/Comunicado_brinde_assinado.pdf",
-"/workspaces/Agente_AI/data/docs/Guia 4 - PMEs.pdf",
-"/workspaces/Agente_AI/data/docs/Política Anticorrupção do Sistema FIESC.pdf",
-"/workspaces/Agente_AI/data/docs/Política de Ética e Compliance da FIESC e suas Entidades.pdf",
-"/workspaces/Agente_AI/data/docs/Politica-de-conflito-de-interesses.pdf"
+MODEL_NAME = os.getenv("MODEL_NAME", "distilgpt2")
+EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2")
+VECTORSTORE_PATH = os.getenv("VECTORSTORE_PATH", "./data/vectorstore")
+DOCS_PATH = os.getenv("DOCS_PATH", "./data/docs")
+VITE_API_BASE_URL = os.getenv("VITE_API_BASE_URL", "http://localhost:8000")
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+    if origin.strip()
+]
+ADMIN_API_TOKEN = os.getenv("ADMIN_API_TOKEN", "changeme")
+LLM_PROVIDER = os.getenv("LLM_PROVIDER", "huggingface")
 
-# Verificar se a chave API está definida
 if not HUGGINGFACEHUB_API_TOKEN:
     print("Aviso: HUGGINGFACEHUB_API_TOKEN não definido. Usando modelo público.")

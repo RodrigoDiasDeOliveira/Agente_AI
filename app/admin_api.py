@@ -1,17 +1,37 @@
-from fastapi import FastAPI
+import os
+
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import text
 
+from .config import ADMIN_API_TOKEN, CORS_ORIGINS
 from .feedback_handler import FeedbackHandler
 from .models import MatchDocument, SearchTargetCreate
 from .search_space import SearchSpaceManager
 from .trusted_search import TrustedAnswerSearch
 
 app = FastAPI(title="Agente AI Admin API", version="1.0.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=CORS_ORIGINS or ["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 manager = SearchSpaceManager()
 trusted_search = TrustedAnswerSearch()
 feedback_handler = FeedbackHandler()
+
+
+@app.middleware("http")
+async def admin_auth_middleware(request: Request, call_next):
+    if request.url.path.startswith("/admin"):
+        token = request.headers.get("X-Admin-Token")
+        if token != ADMIN_API_TOKEN:
+            raise HTTPException(status_code=401, detail="Admin token invalid")
+    return await call_next(request)
 
 
 class TargetPayload(BaseModel):
@@ -24,7 +44,7 @@ class TargetPayload(BaseModel):
     params: dict = {}
 
 
-@app.post("/admin/targets")
+@app.post("/targets")
 def create_target(payload: TargetPayload):
     try:
         match_doc = MatchDocument(
@@ -45,13 +65,13 @@ def create_target(payload: TargetPayload):
         return {"message": f"Erro ao criar target: {exc}"}
 
 
-@app.post("/admin/load-pdfs")
+@app.post("/load-pdfs")
 def load_pdfs():
     count = manager.load_pdfs_to_targets()
     return {"message": f"{count} targets criados a partir dos PDFs!"}
 
 
-@app.get("/admin/targets")
+@app.get("/targets")
 def list_targets():
     session = trusted_search.Session()
     result = session.execute(
@@ -68,7 +88,7 @@ def list_targets():
     return {"targets": targets}
 
 
-@app.get("/admin/feedback")
+@app.get("/feedback")
 def feedback_stats():
     stats = feedback_handler.get_feedback_stats()
     recent = feedback_handler.get_recent_feedback(limit=10)

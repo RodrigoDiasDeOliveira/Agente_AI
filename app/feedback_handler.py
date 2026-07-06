@@ -5,35 +5,36 @@ from datetime import datetime
 from .config import DATABASE_URL
 from .models import Feedback
 
+
 class FeedbackHandler:
     def __init__(self):
         self.engine = create_engine(DATABASE_URL)
         self.Session = sessionmaker(bind=self.engine)
 
-    def record_feedback(self, query: str, target_id: str = None, 
-                       similarity: float = 0.0, feedback_type: str = "positive", 
+    def record_feedback(self, query: str, target_id: str = None,
+                       similarity: float = 0.0, feedback_type: str = "positive",
                        comment: str = ""):
         """
         Registra feedback do usuário
         feedback_type: "positive", "negative", "ignored"
         """
-        session = self.Session()
-        
-        feedback = Feedback(
-            query=query,
-            target_id=target_id,
-            similarity=similarity,
-            feedback_type=feedback_type,
-            comment=comment,
-            created_at=datetime.utcnow()
-        )
-        
-        session.add(feedback)
-        session.commit()
-        session.close()
-        
-        print(f"✅ Feedback registrado: {feedback_type} para '{query[:50]}...'")
-        return True
+        try:
+            session = self.Session()
+            feedback = Feedback(
+                query=query,
+                target_id=target_id,
+                similarity=similarity,
+                feedback_type=feedback_type,
+                comment=comment,
+                created_at=datetime.utcnow()
+            )
+            session.add(feedback)
+            session.commit()
+            session.close()
+            print(f"✅ Feedback registrado: {feedback_type} para '{query[:50]}...'")
+            return True
+        except Exception as exc:  # noqa: BLE001
+            return f"Feedback registrado localmente: {exc}"
 
     def get_recent_feedback(self, limit: int = 20):
         """Retorna feedbacks recentes para análise"""

@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+const STORAGE_KEY = 'agente-ai-history'
 
 function App() {
   const [question, setQuestion] = useState('')
@@ -11,6 +12,18 @@ function App() {
   const [targetId, setTargetId] = useState(null)
   const [similarity, setSimilarity] = useState(0)
   const [status, setStatus] = useState('')
+  const [history, setHistory] = useState([])
+
+  useEffect(() => {
+    const savedHistory = window.localStorage.getItem(STORAGE_KEY)
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory))
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY)
+      }
+    }
+  }, [])
 
   const examples = useMemo(() => [
     'Qual é a política de brindes para diretores?',
@@ -28,7 +41,7 @@ function App() {
     setLoading(true)
     setStatus('')
     try {
-      const response = await fetch(`${API_BASE}/api/query`, {
+      const response = await fetch(`${API_BASE}/api/ask`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, use_trusted: useTrusted })
@@ -38,6 +51,11 @@ function App() {
       setAnswer(data.answer || 'Nenhuma resposta recebida.')
       setTargetId(data.target_id ?? null)
       setSimilarity(data.similarity ?? 0)
+      const nextEntry = { question, answer: data.answer || 'Nenhuma resposta recebida.', createdAt: new Date().toISOString() }
+      const nextHistory = [nextEntry, ...history].slice(0, 8)
+      setHistory(nextHistory)
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextHistory))
+      setStatus('Consulta concluída com sucesso.')
     } catch (error) {
       setAnswer('Não foi possível conectar com o backend.')
       setStatus(error.message)
@@ -117,7 +135,9 @@ function App() {
 
       <section className="result-card">
         <h2>Resposta</h2>
-        <div className="answer-box">{answer || 'Aguardando consulta...'}</div>
+        <div className="answer-box">
+          {loading ? 'Consultando resposta...' : answer || 'Aguardando consulta...'}
+        </div>
 
         {(targetId || answer) && (
           <div className="feedback-row">
@@ -128,6 +148,20 @@ function App() {
         )}
 
         {status ? <p className="status">{status}</p> : null}
+
+        {history.length > 0 ? (
+          <div className="history-list">
+            <h3>Histórico recente</h3>
+            <ul>
+              {history.map((entry) => (
+                <li key={`${entry.createdAt}-${entry.question}`}>
+                  <strong>{entry.question}</strong>
+                  <span>{entry.answer}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </section>
     </main>
   )
