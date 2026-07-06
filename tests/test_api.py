@@ -1,11 +1,12 @@
 import pytest
-from gradio_client import Client
+import httpx
+from fastapi.testclient import TestClient
 import pandas as pd
 import os
 
 @pytest.fixture
 def client():
-    return Client("http://localhost:7860/")
+    return httpx.Client("http://localhost:7860/")
 
 @pytest.mark.asyncio
 async def test_predict_endpoint_valid_question(client):

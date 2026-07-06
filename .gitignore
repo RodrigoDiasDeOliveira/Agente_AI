@@ -1,14 +1,48 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
 venv/
 .venv/
-.gradio/
+
+# Testes
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+dist/
+
+# Banco de dados
+*.db
+
+# Dados locais
 data/app.db
 data/vectorstore/
 interactions.csv
+
+# Configuração local
 .env
-.pytest_cache/
-node_modules/
-dist/
-*.db
-.venv/
+
+# Gradio
+.gradio/
+*.faiss
+*.index
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.gguf
