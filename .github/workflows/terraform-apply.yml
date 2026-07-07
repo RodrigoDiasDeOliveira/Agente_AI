@@ -1,0 +1,46 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Ambiente'
+        required: true
+        type: choice
+        options: [dev, prod]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: gh-deployer@${{ secrets.GCP_PROJECT }}.iam.gserviceaccount.com
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~> 1.9"
+
+      - name: Terraform Init
+        run: terraform -chdir=infrastructure/terraform/envs/${{ inputs.environment }} init
+
+      - name: Terraform Validate & Fmt
+        run: |
+          terraform -chdir=infrastructure/terraform/envs/${{ inputs.environment }} fmt -check
+          terraform -chdir=infrastructure/terraform/envs/${{ inputs.environment }} validate
+
+      - name: Terraform Plan
+        run: terraform -chdir=infrastructure/terraform/envs/${{ inputs.environment }} plan -no-color -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' || inputs.environment == 'dev'
+        run: terraform -chdir=infrastructure/terraform/envs/${{ inputs.environment }} apply -auto-approve tfplan
