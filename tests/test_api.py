@@ -4,7 +4,7 @@ import os
 from fastapi.testclient import TestClient
 
 # Import the main FastAPI app
-from app.main import app   # ← Ajuste se o arquivo principal for app/api.py
+from app.api import app  
 
 @pytest.fixture(scope="module")
 def client():
