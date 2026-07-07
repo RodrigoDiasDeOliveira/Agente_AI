@@ -1,15 +1,15 @@
-# ADR 0004: Autenticação mínima do painel administrativo e CORS controlado
+# ADR-004: Minimal Administrative Panel Authentication and Controlled CORS
 
-- Status: Aceito
-- Data: 2026-07-06
+- Status: Accepted
+- Date: 2026-07-06
 
-## Contexto
-As rotas administrativas estavam expostas sem qualquer proteção, e o CORS estava liberado de forma ampla, o que não é adequado para ambientes de produção.
+## Context
+The administrative routes were exposed without any protection, and CORS was broadly enabled, which is not suitable for production environments.
 
-## Decisão
-Adicionar autenticação mínima via header X-Admin-Token nas rotas /admin/* e restringir as origens permitidas via variável de ambiente CORS_ORIGINS.
+## Decision
+Add minimal authentication via the `X-Admin-Token` header for routes under `/admin/*` and restrict allowed origins using the `CORS_ORIGINS` environment variable.
 
-## Consequências
-- O painel administrativo fica protegido por padrão.
-- A exposição da API para browsers fica mais segura.
-- O ambiente pode ser configurado de forma diferente em dev, staging e produção.
+## Consequences
+- The administrative panel is protected by default.
+- API exposure to browsers becomes more secure.
+- The environment can be configured differently for dev, staging, and production.

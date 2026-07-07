@@ -1,15 +1,15 @@
-# ADR 0003: Uso de PostgreSQL com pgvector
+# ADR-003: Use of PostgreSQL with pgvector
 
-- Status: Aceito
-- Data: 2026-07-06
+- Status: Accepted
+- Date: 2026-07-06
 
-## Contexto
-O projeto precisava de um banco preparado para busca semântica com vetores, mas a migração inicial só criava as tabelas sem habilitar a extensão necessária.
+## Context
+The project needed a database prepared for semantic vector search, but the initial migration only created tables without enabling the necessary extension.
 
-## Decisão
-Adotar PostgreSQL + pgvector como backend principal e habilitar a extensão vector na inicialização do banco via migração.
+## Decision
+Adopt PostgreSQL + pgvector as the main backend and enable the `vector` extension during database initialization via migration.
 
-## Consequências
-- A busca vetorial passa a ser suportada de forma nativa.
-- O ambiente de desenvolvimento e produção ganha uma base mais alinhada ao fluxo de recuperação semântica.
-- A configuração precisa de um banco compatível com pgvector.
+## Consequences
+- Vector search is now supported natively.
+- Both development and production environments have a foundation better aligned with semantic retrieval workflows.
+- The configuration requires a database compatible with pgvector.

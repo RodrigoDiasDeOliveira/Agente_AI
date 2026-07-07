@@ -1,15 +1,15 @@
-# ADR 0002: Aplicação FastAPI unificada com endpoint padronizado
+# ADR-002: Unified FastAPI Application with Standardized Endpoint
 
-- Status: Aceito
-- Data: 2026-07-06
+- Status: Accepted
+- Date: 2026-07-06
 
-## Contexto
-O repositório mantinha duas apps FastAPI separadas e o frontend esperava um endpoint diferente do backend, causando inconsistência de integração.
+## Context
+The repository maintained two separate FastAPI apps, and the frontend expected a different endpoint from the backend, causing integration inconsistency.
 
-## Decisão
-Unificar a API principal montando o admin sob o mesmo app e padronizar a consulta no endpoint /api/ask, mantendo /api/query como alias compatível.
+## Decision
+Unify the main API by mounting the admin under the same app and standardize the query endpoint at `/api/ask`, keeping `/api/query` as a compatible alias.
 
-## Consequências
-- O backend expõe uma interface mais consistente para frontend e clientes.
-- As rotas administrativas passam a ficar disponíveis sob /admin.
-- A compatibilidade com integrações antigas é preservada.
+## Consequences
+- The backend exposes a more consistent interface for the frontend and external clients.
+- Administrative routes are now available under `/admin`.
+- Compatibility with legacy integrations is preserved.

@@ -1,15 +1,15 @@
-# ADR 0005: Stack containerizada com Docker Compose e CI
+# ADR-005: Containerized Stack with Docker Compose and CI
 
-- Status: Aceito
-- Data: 2026-07-06
+- Status: Accepted
+- Date: 2026-07-06
 
-## Contexto
-O projeto não possuía um fluxo de onboarding consistente para desenvolvimento local nem automação de validação em CI.
+## Context
+The project lacked a consistent onboarding flow for local development and automated validation in CI.
 
-## Decisão
-Adicionar Dockerfile, Docker Compose com serviços para banco, API e frontend, além de um workflow GitHub Actions para rodar testes e build do frontend.
+## Decision
+Add Dockerfile, Docker Compose with services for database, API, and frontend, plus a GitHub Actions workflow to run tests and build the frontend.
 
-## Consequências
-- O setup do projeto fica mais simples e reproduzível.
-- O onboarding melhora para novos desenvolvedores.
-- Mudanças passam por validação automática em cada push ou pull request.
+## Consequences
+- Project setup becomes simpler and more reproducible.
+- Onboarding experience improves for new developers.
+- Changes go through automatic validation on every push or pull request.

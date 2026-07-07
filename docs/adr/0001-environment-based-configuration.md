@@ -1,15 +1,15 @@
-# ADR 0001: Configuração baseada em variáveis de ambiente
+# ADR-001: Environment Variables Based Configuration
 
-- Status: Aceito
-- Data: 2026-07-06
+- Status: Accepted
+- Date: 2026-07-06
 
-## Contexto
-O projeto dependia de paths absolutos hardcoded e de valores fixos no código, o que quebrava a execução em ambientes diferentes do Codespaces original.
+## Context
+The project relied on hardcoded absolute paths and fixed values in the code, which broke execution in environments different from the original Codespaces.
 
-## Decisão
-Centralizar a configuração em variáveis de ambiente com defaults seguros. O módulo de configuração passou a ler valores como DATABASE_URL, DOCS_PATH, CORS_ORIGINS, ADMIN_API_TOKEN e LLM_PROVIDER.
+## Decision
+Centralize configuration using environment variables with safe defaults. The configuration module now reads values such as `DATABASE_URL`, `DOCS_PATH`, `CORS_ORIGINS`, `ADMIN_API_TOKEN`, and `LLM_PROVIDER`.
 
-## Consequências
-- O projeto passa a ser mais portátil.
-- O onboarding fica mais simples em ambientes locais, Docker e CI.
-- A configuração do runtime fica explícita e documentada no arquivo de exemplo de env.
+## Consequences
+- The project becomes more portable.
+- Onboarding is simpler across local, Docker, and CI environments.
+- Runtime configuration is explicit and documented in the example `.env` file.

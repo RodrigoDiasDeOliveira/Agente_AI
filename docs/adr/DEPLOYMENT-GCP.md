@@ -1,33 +1,27 @@
-# Deployment no Google Cloud Platform
+# Deployment on Google Cloud Platform
 
-Este documento descreve o fluxo recomendado para implantar o projeto Agente AI no GCP usando Terraform, Cloud Run, Secret Manager, BigQuery e Vertex AI.
+This document describes the recommended workflow to deploy the Agente AI project on GCP using Terraform, Cloud Run, Secret Manager, BigQuery, and Vertex AI.
 
-## 1. Pré-requisitos
+## 1. Prerequisites
 
-- Conta Google Cloud com billing habilitado
-- Projeto GCP criado
-- gcloud instalado e autenticado
+- Google Cloud account with billing enabled
+- GCP project created
+- gcloud CLI installed and authenticated
 - Terraform >= 1.6
-- Bucket GCS para o estado remoto com versionamento habilitado
+- GCS bucket for remote state with versioning enabled
 
-## 2. Criar projeto e habilitar billing
+## 2. Create Project and Enable Billing
 
 ```bash
 gcloud projects create agente-ai-prod --name="Agente AI"
 gcloud beta billing projects link agente-ai-prod --billing-account=XXXX
-```
 
-## 3. Criar bucket para o state remoto
-
-```bash
-gsutil mb -l southamerica-east1 gs://agente-ai-tfstate
+3. Create Bucket for Remote State
+Bashgsutil mb -l southamerica-east1 gs://agente-ai-tfstate
 gsutil versioning set on gs://agente-ai-tfstate
-```
 
-## 4. Habilitar APIs mínimas
-
-```bash
-gcloud services enable \
+4. Enable Minimum APIs
+Bashgcloud services enable \
   cloudresourcemanager.googleapis.com \
   serviceusage.googleapis.com \
   iam.googleapis.com \
@@ -46,50 +40,31 @@ gcloud services enable \
   iap.googleapis.com \
   dlp.googleapis.com \
   --project=agente-ai-prod
-```
 
-## 5. Autenticação para o primeiro apply
-
-```bash
-gcloud auth application-default login
-```
-
-## 6. Terraform
-
-### Dev
-
-```bash
-cd infrastructure/terraform/envs/dev
+5. Authentication for First Apply
+Bashgcloud auth application-default login
+6. Terraform
+Dev
+Bashcd infrastructure/terraform/envs/dev
 terraform init
 terraform plan -var-file=terraform.tfvars
 terraform apply -var-file=terraform.tfvars
-```
-
-### Prod
-
-```bash
-cd infrastructure/terraform/envs/prod
+Prod
+Bashcd infrastructure/terraform/envs/prod
 terraform init
 terraform plan -var-file=terraform.tfvars
 terraform apply -var-file=terraform.tfvars
-```
+7. Secrets
+Create secret versions manually after the first apply, for example:
+Bashgcloud secrets versions add db-password-dev --data-file=/path/to/password
+8. CI/CD
+The repository already includes workflows for:
 
-## 7. Secrets
+Validating Terraform on Pull Requests
+Applying Terraform with approval via GitHub Environments
 
-Crie as versões dos secrets manualmente após o primeiro apply, por exemplo:
+9. Notes
 
-```bash
-gcloud secrets versions add db-password-dev --data-file=/path/to/password
-```
-
-## 8. CI/CD
-
-O repositório já possui workflows para:
-- validar Terraform em PR
-- aplicar Terraform com approval via GitHub Environment
-
-## 9. Observações
-
-- O state remoto nunca deve ficar local; sempre use GCS com versionamento.
-- Imagens de container devem ser construídas e publicadas pelo CI/CD.
-- Dados da aplicação e informações sensíveis devem ser mantidos fora do state do Terraform.
+The remote state should never be local; always use GCS with versioning enabled.
+Container images must be built and published by the CI/CD pipeline.
+Application data and sensitive information must be kept outside of the Terraform state.
