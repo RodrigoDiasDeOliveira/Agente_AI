@@ -1,25 +1,39 @@
 # app/main.py
 import json
 
+from fastapi import APIRouter, Header, HTTPException, status
+
+from app import config
 from .feedback_handler import FeedbackHandler
 from .search_space import SearchSpaceManager
 from .trusted_search import TrustedAnswerSearch
-from fastapi import APIRouter, Header, HTTPException, status
-from app.config import settings
 
 trusted_search = TrustedAnswerSearch()
 feedback_handler = FeedbackHandler()
 search_manager = SearchSpaceManager()
+
 router = APIRouter()
 
+
 def require_admin(x_admin_token: str | None = Header(default=None)):
-    if not settings.ADMIN_TOKEN or x_admin_token != settings.ADMIN_TOKEN:
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "invalid admin token")
+    """Valida o token de administrador."""
+
+    if (
+        not config.ADMIN_API_TOKEN
+        or x_admin_token != config.ADMIN_API_TOKEN
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="invalid admin token",
+        )
+
     return True
+
 
 def ask_question(question: str, use_trusted: bool):
     """Função principal de consulta."""
-    if not question or question.strip() == "":
+
+    if not question or not question.strip():
         return "Por favor, digite uma pergunta.", None, 0.0, ""
 
     if use_trusted:
@@ -38,20 +52,27 @@ def ask_question(question: str, use_trusted: bool):
 **Link/URL:** {doc.get('url', 'N/A')}
 
 **Parâmetros:** {json.dumps(doc.get('parameters', {}), ensure_ascii=False)}
-            """
+"""
+
             return response_text, target_id, similarity, question
 
-        fallback_text = result.get("content", "Não foi possível encontrar uma resposta confiável.")
+        fallback_text = result.get(
+            "content",
+            "Não foi possível encontrar uma resposta confiável.",
+        )
+
         return fallback_text, None, 0.0, question
 
     from .llm_agent import get_llm_response
 
     response = get_llm_response(question)
+
     return response, None, 0.0, question
 
 
 def record_feedback(feedback_type: str, target_id, similarity, question):
     """Registra feedback do usuário."""
+
     if target_id and question:
         feedback_handler.record_feedback(
             query=question,
@@ -60,5 +81,7 @@ def record_feedback(feedback_type: str, target_id, similarity, question):
             feedback_type=feedback_type,
             comment="",
         )
+
         return f"✅ Feedback **{feedback_type}** registrado com sucesso!"
+
     return "Nenhum match para registrar feedback."
