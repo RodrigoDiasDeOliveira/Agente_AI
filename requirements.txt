@@ -1,25 +1,61 @@
+# ============================================
+# Agente_AI
+# Python 3.11
+# ============================================
+
+# ----------------------------
+# API
+# ----------------------------
 fastapi==0.115.0
 uvicorn[standard]==0.30.6
+
+# ----------------------------
+# Configuração
+# ----------------------------
 pydantic==2.9.2
 pydantic-settings==2.5.2
 python-dotenv==1.0.1
 
+# ----------------------------
+# Banco de Dados
+# ----------------------------
 SQLAlchemy==2.0.35
 psycopg2-binary==2.9.9
 pgvector==0.3.6
 alembic==1.13.3
 
+# ----------------------------
+# HTTP
+# ----------------------------
 httpx==0.27.2
-tenacity==9.0.0
 python-multipart==0.0.12
 
-langchain==0.3.0
-langchain-community==0.3.0
-pypdf==5.0.1
+# LangChain requer tenacity < 9
+tenacity>=8.2,<9
 
-# Observabilidade
+# ----------------------------
+# IA / RAG
+# ----------------------------
+langchain>=0.3,<0.4
+langchain-community>=0.3,<0.4
+langchain-core>=0.3,<0.4
+
+pypdf>=5.0
+
+# Embeddings
+sentence-transformers>=3.0
+
+# Tokenização
+tiktoken>=0.8
+
+# ----------------------------
+# Logging
+# ----------------------------
 structlog==24.4.0
 
-# Testes (mova para requirements-dev.txt talvez)
+# ----------------------------
+# Testes
+# ----------------------------
 pytest==8.3.3
 pytest-asyncio==0.24.0
+pytest-cov>=6.0
