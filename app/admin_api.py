@@ -5,16 +5,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import text
 
-from .config import ADMIN_API_TOKEN, CORS_ORIGINS
+from .config import settings
 from .feedback_handler import FeedbackHandler
 from .models import MatchDocument, SearchTargetCreate
 from .search_space import SearchSpaceManager
 from .trusted_search import TrustedAnswerSearch
 
 app = FastAPI(title="Agente AI Admin API", version="1.0.0")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS or ["*"],
+    allow_origins=[
+        origin.strip()
+        for origin in settings.CORS_ORIGINS.split(",")
+        if origin.strip()
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -29,8 +34,13 @@ feedback_handler = FeedbackHandler()
 async def admin_auth_middleware(request: Request, call_next):
     if request.url.path.startswith("/admin"):
         token = request.headers.get("X-Admin-Token")
-        if token != ADMIN_API_TOKEN:
-            raise HTTPException(status_code=401, detail="Admin token invalid")
+
+        if token != settings.ADMIN_API_TOKEN:
+            raise HTTPException(
+                status_code=401,
+                detail="Admin token invalid",
+            )
+
     return await call_next(request)
 
 
@@ -53,14 +63,18 @@ def create_target(payload: TargetPayload):
             title=payload.title,
             parameters=payload.params,
         )
+
         target = SearchTargetCreate(
             target_id=payload.target_id,
             description=payload.description,
             alternative_phrases=payload.alternative_phrases,
             match_document=match_doc,
         )
+
         manager.add_manual_target(target)
+
         return {"message": "Target criado com sucesso!"}
+
     except Exception as exc:  # noqa: BLE001
         return {"message": f"Erro ao criar target: {exc}"}
 
@@ -68,23 +82,36 @@ def create_target(payload: TargetPayload):
 @app.post("/load-pdfs")
 def load_pdfs():
     count = manager.load_pdfs_to_targets()
-    return {"message": f"{count} targets criados a partir dos PDFs!"}
+
+    return {
+        "message": f"{count} targets criados a partir dos PDFs!"
+    }
 
 
 @app.get("/targets")
 def list_targets():
     session = trusted_search.Session()
+
     result = session.execute(
         text(
-            "SELECT target_id, description, match_document->>'type' as type "
-            "FROM search_targets ORDER BY created_at DESC"
+            "SELECT target_id, description, "
+            "match_document->>'type' as type "
+            "FROM search_targets "
+            "ORDER BY created_at DESC"
         )
     )
+
     targets = [
-        {"target_id": row.target_id, "type": row.type, "description": row.description}
+        {
+            "target_id": row.target_id,
+            "type": row.type,
+            "description": row.description,
+        }
         for row in result
     ]
+
     session.close()
+
     return {"targets": targets}
 
 
@@ -92,4 +119,8 @@ def list_targets():
 def feedback_stats():
     stats = feedback_handler.get_feedback_stats()
     recent = feedback_handler.get_recent_feedback(limit=10)
-    return {"stats": stats, "recent": recent}
+
+    return {
+        "stats": stats,
+        "recent": recent,
+    }
