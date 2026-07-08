@@ -1,41 +1,21 @@
-# ================== Core ==================
-fastapi>=0.115.0
-uvicorn>=0.30.0
-python-dotenv>=1.0.1
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+python-dotenv==1.0.1
 
-# ================== LangChain & AI ==================
-langchain>=0.3.0
-langchain-community>=0.3.0
-langchain-huggingface>=0.1.0
-langchain-text-splitters>=0.3.0
+SQLAlchemy==2.0.35
+psycopg2-binary==2.9.9
+pgvector==0.3.6
+alembic==1.13.3
 
-# ================== Embeddings & Vectors ==================
-sentence-transformers>=3.0.0
-huggingface-hub>=0.25.0
+httpx==0.27.2
+tenacity==9.0.0
+python-multipart==0.0.12
 
-# ================== Banco de Dados ==================
-sqlalchemy>=2.0.0
-psycopg2-binary>=2.9.0
-pgvector>=0.3.0
+# Observabilidade
+structlog==24.4.0
 
-# ================== Document Loading ==================
-pypdf>=5.0.0
-pypdfium2>=4.30.0
-
-# ================== Utilities ==================
-pydantic>=2.9.0
-pandas>=2.2.0
-python-multipart>=0.0.9
-tqdm>=4.66.0
-
-# ================== Opcionais (recomendados) ==================
-# ollama>=0.3.0                  # se quiser usar Ollama local
-# groq>=0.9.0                    # se usar Groq como fallback LLM
-# openai>=1.0.0                  # se quiser usar OpenAI como fallback
-
-# ================== Desenvolvimento ==================
-pytest>=8.0.0
-black>=24.0.0
-isort>=5.0.0
-pytest-asyncio>=0.24.0
-httpx>=0.28.0
+# Testes (mova para requirements-dev.txt talvez)
+pytest==8.3.3
+pytest-asyncio==0.24.0

@@ -1,8 +1,0 @@
-project_id = "agente-ai-dev"
-region     = "southamerica-east1"
-env         = "dev"
-github_repo = "RodrigoDiasDeOliveira/Agente_AI"
-backend_image = "southamerica-east1-docker.pkg.dev/agente-ai-dev/agente-ai/api:latest"
-web_image     = "southamerica-east1-docker.pkg.dev/agente-ai-dev/agente-ai/web:latest"
-ingest_image  = "southamerica-east1-docker.pkg.dev/agente-ai-dev/agente-ai/ingest:latest"
-notification_email = "seuemail@empresa.com"

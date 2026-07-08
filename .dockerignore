@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+node_modules/
+
+# Dados locais (NUNCA vão pra imagem)
+data/app.db
+data/vectorstore/
+*.sqlite
+*.sqlite3
+interactions.csv
+.gradio/
+
+# Terraform
+infrastructure/terraform/**/.terraform/
+infrastructure/terraform/**/*.tfstate*
+infrastructure/terraform/**/*.tfvars
+
+# Git / CI / docs
+.git/
+.github/
+docs/
+*.md
+!README.md
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env
+.env.*
+!.env.example

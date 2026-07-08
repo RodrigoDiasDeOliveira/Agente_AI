@@ -66,6 +66,10 @@ logs/
 *.tfstate.backup
 .terraform/
 .terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
+.terraform/
+*.tfstate*
 
 # Build artifacts
 dist/
