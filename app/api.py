@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, text
 
 from .admin_api import app as admin_app
-from .config import CORS_ORIGINS, DATABASE_URL
+from .config import settings
 from .main import ask_question, record_feedback
 
 logging.basicConfig(level=logging.INFO)
@@ -23,13 +23,14 @@ app.mount("/admin", admin_app)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=CORS_ORIGINS or ["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+   allow_origins=[
+    origin.strip()
+    for origin in settings.CORS_ORIGINS.split(",")
+    if origin.strip()
+],
 )
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)
 request_counter = Counter()
 latency_histogram = Counter()
 rate_limit_hits = Counter()
@@ -79,7 +80,7 @@ def health():
     try:
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
-            if "postgres" in DATABASE_URL.lower():
+            if "postgres" in settings.DATABASE_URL.lower():
                 vector_enabled = connection.execute(
                     text("SELECT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'vector')")
                 ).scalar()
