@@ -1,15 +1,22 @@
 from sqlalchemy import create_engine, text
 
-from app.config import DATABASE_URL
+from app.config import settings
 from app.models import Base
 
 
 def init_database():
-    engine = create_engine(DATABASE_URL)
+    engine = create_engine(settings.DATABASE_URL)
+
     with engine.begin() as connection:
-        if DATABASE_URL.lower().startswith(("postgresql", "postgres")):
-            connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        if settings.DATABASE_URL.lower().startswith(
+            ("postgresql", "postgres")
+        ):
+            connection.execute(
+                text("CREATE EXTENSION IF NOT EXISTS vector")
+            )
+
     Base.metadata.create_all(engine)
+
     print("✅ Banco de dados e tabelas criadas com sucesso!")
 
 
