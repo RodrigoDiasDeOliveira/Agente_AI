@@ -1,4 +1,4 @@
-# Agente_AI - Trusted Compliance Agent
+#  Trusted Compliance Agent
 
 <img width="1280" height="853" alt="1777839409525" src="https://github.com/user-attachments/assets/39a6bc41-60fd-4922-afc7-5d28386edc21" />
 
@@ -54,5 +54,5 @@ Architecture Decision Records (ADRs)
 
 View all ADRs in WIKI
 
-Architecture Document
-📄 Full Architecture
+an TrimindsLabs initiative 2025
+
